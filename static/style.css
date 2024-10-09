@@ -1,0 +1,182 @@
+.background {
+    background-color: #14213D;
+}
+
+.bet {
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+}
+
+/* Navbar styles */
+.navbar {
+    background-color: #00274C;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between; /* Aligns the left side (image + header) and the right side (nav links) */
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    margin-bottom: 40px;
+    height: 80px; /* Increased height */
+    border: solid;
+}
+
+
+/* Left section with the image and header */
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-left img.navbar-image {
+    height: 90px; /* Adjust height of the image */
+    width: auto;
+    margin-right: 15px; /* Space between image and header */
+}
+
+.navbar-left h3 {
+    color: #Fca311; /* Gold for the header */
+    font-size: xx-large; /* Larger font size for the header */
+    margin: 0;
+}
+
+/* Navbar links */
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.navbar ul li {
+    margin: 0 15px;
+}
+
+.navbar ul li a {
+    text-decoration: none;
+    color: #FFFFFF;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    padding: 10px 15px;
+    transition: background-color 0.3s ease;
+    font-size: x-large;
+    border: solid;
+    border-color: black;
+    border-radius: 10px;
+    background-color: #4A5157;
+}
+
+.navbar ul li a:hover {
+    background-color: #Fca311;
+    color: #00274C;
+    border-radius: 5px;
+}
+
+
+
+
+
+
+.credits {
+    position: fixed;
+    bottom: 2px;
+    width: 100%; /* Ensure the element takes up the full width */
+    text-align: center; /* Center the text inside the element */
+    background-color: #Fca311;
+}
+
+.credits ul { /* Make the ul an inline-block element */
+    font-size: small;
+    list-style-type: none;
+    margin: 0 auto; /* Center the ul element horizontally */
+}
+
+
+.plot-button {
+    background-color: #0d21a1;
+    color: white;
+    font-size: large;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 20px 0;
+}
+
+.plot-button:hover {
+    background-color: #00274C;
+    color: #FDB515;
+}
+
+#plotlyGraphs {
+    margin-top: 40px; /* Adjust the value to increase or decrease the space */
+}
+
+
+.clear-button {
+    background-color: #ba181b;
+    color: white;
+    font-size: large;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 20px 10px; /* Spacing between buttons */
+}
+
+.clear-button:hover {
+    background-color: #c53f3f;
+}
+
+
+.experience-wrapper {
+    background-color: #000000; /* Light background for the section */
+    padding: 20px;
+    border: 4mm ridge;
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    margin: 20px 0;
+  }
+  
+  /* Individual experience item */
+  .experience-list-item {
+    border-left: 4px solid #0073e6; /* Accent line on the left */
+    padding-left: 15px;
+    margin-bottom: 20px;
+  }
+  
+  /* Headings with icons */
+  .experience-list-item h3 {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 10px;
+  }
+  
+  .experience-list-item h3 i {
+    margin-right: 10px; /* Space between icon and heading */
+    color: #0073e6;
+  }
+  
+  /* Paragraphs */
+  .experience-list-item p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: white;
+  }
+  
+  /* Hover effect for items */
+  .experience-list-item:hover {
+    background-color: #c53f3f;
+    transition: background-color 0.3s ease;
+  }
+  s
+  /* Make the icons larger */
+  i.fas {
+    font-size: 1.2em;
+  }
+
+  

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mass Spectral</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> <!-- Add Plotly Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+
+<nav class="navbar">
+  <div class="navbar-left">
+    <img src="/static/UC_Berkeley_Seal_80px.png" alt="UC Berkeley Seal" class="navbar-image">
+    <h3>Mass Spectral Database</h3>
+  </div>
+  <ul>
+      <li><a href="https://ourenvironment.berkeley.edu/">Department of Environmental Science</a></li>
+      <li><a href="https://amt.copernicus.org/articles/16/6075/2023/">References</a></li>
+      <li><a href="https://ourenvironment.berkeley.edu/people/lindsay-yee">Contact</a></li>
+  </ul>
+</nav>
+
+
+<body class="background">
+
+    <div class="experience">
+        <div class="experience-wrapper">
+        
+            <!-- Data Comparison Tab -->
+            <div class="experience-list-item">
+                <h3><i class="fas fa-database" id="about"></i> Data Comparison Tab</h3>
+                <p>
+                  Users can select two mass spectrum for comparison using the "Select" tab on the far left side of the database. To filter results, users can type the mass spectrum name in the "Name" field or use database filters, such as date, number of peaks, or contributor. 
+                  Once selected, users can generate five types of plots by clicking the "Plot Selected Rows" button and clear the selection with the "Clear Selection" button.
+                </p>
+            </div>
+      
+            <!-- Cosine Angle Similarity Score -->
+            <div class="experience-list-item">
+                <h3><i class="fas fa-chart-line"></i> Cosine Angle Similarity Score</h3>
+                <p>
+                  This panel compares the similarity between a target mass spectrum and reference spectra using cosine similarity, which outperforms other methods in MS analysis (Stein and Scott, 1994; Ulbrich et al., 2009). 
+                  Cosine similarity, calculated by measuring the angle between two vectors, gives a score from 0 to 1, where a higher value means greater similarity.
+                </p>
+            </div>
+      
+            <!-- Five Types of Plots -->
+            <div class="experience-list-item" id="tools">
+                <h3><i class="fas fa-chart-pie"></i> Five Types of Plots</h3>
+                <p>
+                  Figure 3 shows five plot types for comparing mass spectra: (a) sample mass spectrum, (b) reference mass spectrum, (c) mirrored comparison, (d) difference spectrum, and (e) scatter plot with regression data.
+                </p>
+            </div>
+        </div>
+      </div>
+
+
+
+  <!-- AG Grid Table -->
+  <div id="myGrid" class="ag-theme-alpine" style="height: 500px; width: 100%;"></div>
+  
+  <!-- Div to hold multiple Plotly graphs -->
+  <div id="plotlyGraphs"></div>
+
+  <div id="cosineScore" style="margin-top: 20px; font-size: 18px; color: white"></div>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script>
+    const columnDefs = [
+        { headerName: 'Name', field: 'Name'},
+        { headerName: 'Retention Index', field: 'Retention_index' },
+        { headerName: 'Number of Peaks', field: 'Num Peaks', filter: 'agNumberColumnFilter' },
+        { headerName: 'd-Alkane RTI', field: 'd_alkane_RTI' },
+        { headerName: 'n-Alkane RTI', field: 'n_alkane_RTI' },
+        { headerName: 'Instrument', field: 'Instrument' },
+        { headerName: 'Ionization', field: 'Ionization' },
+        { headerName: 'Injection Method', field: 'Injection_method' },
+        { headerName: 'GC Column', field: 'gc_column' },
+        { headerName: 'Oven Temp', field: 'oven_temp' },
+        { headerName: 'Campaign Experimental Source', field: 'campaign_experimental_source' },
+        { headerName: 'Experimental Conditions', field: 'experimental_conditions' },
+        { headerName: 'Contributor', field: 'contributor', filter: 'agTextColumnFilter' },
+        { headerName: 'Date of Entry', field: 'date_of_entry', filter: 'agDateColumnFilter' },
+        { headerName: 'Publications', field: 'publications' },
+        { headerName: 'm/z', field: 'x_coordinates' },
+        { headerName: 'Intensity Peaks', field: 'y_coordinates' }
+    ];
+
+    // Fetch data from the Flask API
+    fetch('/api/data')
+    .then(response => response.json())
+    .then(result => {
+        const minilist = result.data;
+
+        const gridOptions = {
+            columnDefs: columnDefs,
+            rowData: minilist,
+            defaultColDef: {
+                sortable: true,
+                filter: true,
+                resizable: true
+            },
+            rowSelection: {
+                mode: 'multiRow' // Enable multiple row selection
+            }
+            
+        };
+        
+        const eGridDiv = document.querySelector('#myGrid');
+        new agGrid.Grid(eGridDiv, gridOptions);
+
+        // Event listener for the "Plot Selected Rows" button
+        
+
+
+
+        document.getElementById('plotButton').addEventListener('click', () => {
+            const selectedRows = gridOptions.api.getSelectedRows();
+
+            // Check if more than two rows are selected
+            if (selectedRows.length > 2) {
+                alert('You can only select up to two rows.');
+                gridOptions.api.deselectAll();  // Deselect all rows to enforce the limit
+                return;
+            }
+
+            updatePlotlyGraphs(selectedRows);  // Call plot update when the button is clicked
+            const cosineSim = calculateCosineSimilarity(selectedRows[0].y_coordinates, selectedRows[1].y_coordinates);
+            document.getElementById('cosineScore').textContent = `Cosine Similarity Score: ${cosineSim.toFixed(3)}`;
+        });
+
+        // Event listener for the "Clear Selection" button
+        document.getElementById('clearButton').addEventListener('click', () => {
+            // Clear all selected rows
+            gridOptions.api.deselectAll();  
+
+            // Clear the Plotly graphs by emptying the plotlyGraphs div
+            const plotlyGraphsDiv = document.getElementById('plotlyGraphs');
+            plotlyGraphsDiv.innerHTML = '';  // Clear the graphsz
+            document.getElementById('cosineScore').textContent = '';
+        });
+
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+
+function updatePlotlyGraphs(selectedRows) {
+    const plotlyGraphsDiv = document.getElementById('plotlyGraphs');
+    plotlyGraphsDiv.innerHTML = '';  // Clear previous graphs
+
+    // Add margin to create space between table and graphs
+    plotlyGraphsDiv.style.marginTop = '40px';  // Add 40px space
+
+    // Create individual graphs for each selected row
+    selectedRows.forEach((row, index) => {
+        const divId = `plotlyGraph${index}`;
+        const coordsDivId = `coordsDiv${index}`;
+
+        // Create a div for each plot
+        const plotDiv = document.createElement('div');
+        plotDiv.id = divId;
+        plotDiv.style = "width: 100%; height: 500px; margin-bottom: 20px;";
+        plotlyGraphsDiv.appendChild(plotDiv);
+        
+
+        const coordsDiv = document.createElement('div');
+        coordsDiv.id = coordsDivId;
+        coordsDiv.style = "margin-bottom: 20px; font-size: 20px; color: white; background-color: #4A5157; border: 4mm ridge grey"; // Style for the coordinates div
+        plotlyGraphsDiv.appendChild(coordsDiv);
+        
+        // Split x and y coordinates if they are strings
+        const xCoordinates = row.x_coordinates.slice(0,-1).split(',').map(Number);  // Split and convert to numbers
+        const yCoordinates = row.y_coordinates.slice(0,-1).split(',').map(Number);  // Split and convert to numbers
+    
+
+        const trace = {
+            x: xCoordinates,
+            y: yCoordinates,
+            type: "bar",
+            mode: 'markers',
+            text: [row.Name],
+            marker: {
+                size: 12,
+                color: 'rgba(55, 128, 191, 0.7)',
+                line: {
+                    color: 'rgba(55, 128, 191, 1.0)',
+                    width: 1
+                }
+            }
+        };
+
+        const layout = {
+            title: `Bar Plot for ${row.Name}`,
+            xaxis: { title: 'm/z' },
+            yaxis: { title: 'Relative Abundance' }
+        };
+
+        // Plot individual graph
+        Plotly.newPlot(divId, [trace], layout);
+        coordsDiv.innerHTML = `<strong>m/z:</strong> [${xCoordinates.join(', ')}]<br>
+                           <strong>Intensity Peaks:</strong> [${yCoordinates.join(', ')}]`;
+});
+    
+
+    // If two rows are selected, create the third mirrored graph
+    if (selectedRows.length === 2) {
+        const divId = 'plotlyGraphMirror';
+        const coordsDivId = 'coordsDivMirror'; 
+
+        // Create a div for the mirrored plot
+        const plotDiv = document.createElement('div');
+        plotDiv.id = divId;
+        plotDiv.style = "width: 100%; height: 500px; margin-bottom: 20px;";
+        plotlyGraphsDiv.appendChild(plotDiv);
+
+        const coordsDiv = document.createElement('div');
+    coordsDiv.id = coordsDivId;
+    coordsDiv.style = "margin-bottom: 20px; font-size: 20px; color: white; background-color: #4A5157; border: 4mm ridge grey"; // Style for the coordinates div
+    plotlyGraphsDiv.appendChild(coordsDiv);
+
+        // Split x and y coordinates for both rows
+        const row1 = selectedRows[0];
+        const row2 = selectedRows[1];
+
+        const x1 = row1.x_coordinates.slice(0,-1).split(',').map(Number);
+        const y1 = row1.y_coordinates.split(',').map(Number);
+      
+        const x2 = row2.x_coordinates.slice(0,-1).split(',').map(Number);
+        const y2 = row2.y_coordinates.slice(0,-1).split(',').map(y => -y);  // Make y2 negative for mirroring
+        
+      
+
+        const trace1 = {
+            x: x1,
+            y: y1,
+            mode: 'markers',
+            type: "bar",
+            name: row1.Name,
+            marker: {
+                size: 12,
+                color: 'rgba(55, 128, 191, 0.7)',
+                line: {
+                    color: 'rgba(55, 128, 191, 1.0)',
+                    width: 1
+                }
+            }
+        };
+
+        const trace2 = {
+            x: x2,
+            y: y2,
+            mode: 'markers',
+            type: "bar",
+            name: row2.Name,
+            marker: {
+                size: 12,
+                color: 'rgba(255, 99, 71, 0.7)',  // Different color for second row
+                line: {
+                    color: 'rgba(255, 99, 71, 1.0)',
+                    width: 1
+                }
+            }
+        };
+
+        const layout = {
+            title: `Mirrored Bar Plot for ${row1.Name} and ${row2.Name}`,
+            xaxis: { title: 'm/z' },
+            yaxis: { title: 'Relative Abundance' }
+        };
+    
+
+        // Plot the mirrored graph
+        Plotly.newPlot(divId, [trace1, trace2], layout);
+        coordsDiv.innerHTML = `<strong>m/z (Row 1):</strong> [${x1.join(', ')}] <br>
+                           <strong>Intensity Peaks (Row 1):</strong> [${y1.join(', ')}] <br>
+                           <strong>m/z (Row 2):</strong> [${x2.join(', ')}] <br>
+                           <strong>Intensity Peaks (Row 2 - mirrored):</strong> [${y2.join(', ')}]`;
+
+  
+    }
+
+    if (selectedRows.length === 2) {
+    const row1 = selectedRows[0];
+    const row2 = selectedRows[1];
+
+    const x1 = row1.x_coordinates.slice(0,-1).split(',').map(Number);
+    const y1 = row1.y_coordinates.slice(0,-1).split(',').map(Number);
+    const x2 = row2.x_coordinates.slice(0,-1).split(',').map(Number);
+    const y2 = row2.y_coordinates.slice(0,-1).split(',').map(Number);
+
+    // Create a combined set of all x-coordinates (from both row1 and row2)
+    const allXCoordinates = Array.from(new Set([...x1, ...x2])).sort((a, b) => a - b);
+
+    // Create arrays for y1 and y2 corresponding to allXCoordinates
+    const alignedY1 = allXCoordinates.map(x => {
+        const index = x1.indexOf(x);
+        return index !== -1 ? y1[index] : 0;  // Use y1 if x is found, otherwise 0
+    });
+
+    const alignedY2 = allXCoordinates.map(x => {
+        const index = x2.indexOf(x);
+        return index !== -1 ? y2[index] : 0;  // Use y2 if x is found, otherwise 0
+    });
+
+    // Subtraction Plot: Calculate the difference (y1 - y2)
+    const yDiff = alignedY1.map((y, index) => y - alignedY2[index]);
+
+    const divIdSubtraction = 'plotlyGraphSubtraction';
+    const coordsDivSubtractionId = 'coordsDivSubtraction';
+    const plotDivSubtraction = document.createElement('div');
+    plotDivSubtraction.id = divIdSubtraction;
+    plotDivSubtraction.style = "width: 100%; height: 500px; margin-bottom: 20px;";
+    plotlyGraphsDiv.appendChild(plotDivSubtraction);
+
+    const coordsDivSubtraction = document.createElement('div');
+    coordsDivSubtraction.id = coordsDivSubtractionId;
+    coordsDivSubtraction.style = "margin-bottom: 20px; font-size: 20px; color: white; background-color: #4A5157; border: 4mm ridge grey"; // Style for the coordinates div
+    plotlyGraphsDiv.appendChild(coordsDivSubtraction);
+
+    // Create trace for subtraction plot
+    const traceSubtraction = {
+        x: allXCoordinates,
+        y: yDiff,
+        type: 'bar',
+        name: `Difference: ${row1.Name} - ${row2.Name}`,
+        marker: {
+            color: yDiff.map(val => val > 0 ? 'rgba(55, 128, 191, 0.7)' : 'rgba(255, 99, 71, 0.7)')
+        }
+    };
+
+    const layoutSubtraction = {
+        title: `Subtraction Plot for ${row1.Name} and ${row2.Name}`,
+        xaxis: { title: 'm/z' },
+        yaxis: { title: 'Difference in Relative Abundance' }
+    };
+
+    Plotly.newPlot(divIdSubtraction, [traceSubtraction], layoutSubtraction);
+
+    // Display the combined x-coordinates and y-coordinate differences
+    coordsDivSubtraction.innerHTML = `<strong>m/z (Combined):</strong> [${allXCoordinates.join(', ')}]<br>
+                                      <strong>Intensity Peaks (Difference):</strong> [${yDiff.join(', ')}]`;
+
+
+    // Scatter Plot with Regression Line
+    const divIdScatter = 'plotlyGraphScatter';
+    const coordsDivScatterId = 'coordsDivScatter';
+    const plotDivScatter = document.createElement('div');
+    plotDivScatter.id = divIdScatter;
+    plotDivScatter.style = "width: 100%; height: 500px; margin-bottom: 20px;";
+    plotlyGraphsDiv.appendChild(plotDivScatter);
+
+    const coordsDivScatter = document.createElement('div');
+    coordsDivScatter.id = coordsDivScatterId;
+    coordsDivScatter.style = "margin-bottom: 20px; font-size: 20px; color: white; background-color: #4A5157; border: 4mm ridge grey"; // Style for the coordinates div
+    plotlyGraphsDiv.appendChild(coordsDivScatter);
+
+    const traceScatter = {
+        x: y1,
+        y: y2,
+        mode: 'markers',
+        name: `${row1.Name} vs ${row2.Name}`,
+        marker: {
+            size: 12,
+            color: 'rgba(55, 128, 191, 0.7)',
+        }
+    };
+
+    // Regression line
+    const regressionLine = {
+        x: [Math.min(...y1), Math.max(...y1)],
+        y: [Math.min(...y2), Math.max(...y2)],
+        mode: 'lines',
+        name: 'Regression Line',
+        line: { dash: 'dashdot', width: 2, color: 'rgba(255, 99, 71, 1.0)' }
+    };
+
+    const layoutScatter = {
+        title: `Scatter Plot with Regression Line for ${row1.Name} and ${row2.Name}`,
+        xaxis: { title: 'Sample Intensity' },
+        yaxis: { title: 'Reference Intensity' }
+    };
+
+    Plotly.newPlot(divIdScatter, [traceScatter, regressionLine], layoutScatter);
+    coordsDivScatter.innerHTML = `<strong>Sample Intensities (Y1):</strong> [${y1.join(', ')}]<br>
+                                  <strong>Reference Intensities (Y2):</strong> [${y2.join(', ')}]`;
+}
+
+}
+
+function calculateCosineSimilarity(yCoords1, yCoords2) {
+    let y1 = yCoords1.slice(0,-1).split(',').map(Number).filter(val => !isNaN(val));
+    let y2 = yCoords2.slice(0,-1).split(',').map(Number).filter(val => !isNaN(val));
+
+    // Truncate the longer vector to match the shorter one
+    if (y1.length != y2.length) {
+        const minLength = Math.min(y1.length, y2.length);
+        y1 = y1.slice(0, minLength);
+        y2 = y2.slice(0, minLength);
+        alert('Vectors have different lengths!');
+    }
+
+    // Calculate the dot product
+    
+
+    // Calculate magnitudes
+    const magnitudeY1 = Math.sqrt(y1.reduce((sum, val) => sum + val * val, 0));
+    const magnitudeY2 = Math.sqrt(y2.reduce((sum, val) => sum + val * val, 0));
+
+    const dotProduct = y1.reduce((sum, val, index) => sum + val * y2[index], 0);
+    // Handle zero vectors
+    if (magnitudeY1 === 0 || magnitudeY2 === 0) {
+        return NaN;
+    }
+
+    // Return cosine similarity
+    return dotProduct / (magnitudeY1 * magnitudeY2);
+}
+</script>
+
+<button id="plotButton" class="plot-button">Plot Selected Rows</button>
+<button id="clearButton" class="clear-button">Clear Selection</button>
+</body>
+
+<div class = "credits">
+  <ul>
+      <li> Powered By Open Berkeley. Copyright © 2024 UC Regents; all rights reserved. Property of UC Berkeley Department of Environmental Science. Lindsay Yee </li>
+  </ul>
+</div>
+
+
+</html>
