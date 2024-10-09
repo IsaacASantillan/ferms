@@ -93,61 +93,56 @@
 
 // Fetch data from the Flask API
 fetch('/api/data')
-.then(response => response.json())
-.then(result => {
-    const minilist = result.data;
+    .then(response => response.json())
+    .then(result => {
+        const minilist = result.data;
 
-    const dataSource = {
-        getRows: function(params) {
-            const startRow = params.startRow;
-            const endRow = params.endRow;
+        const dataSource = {
+            getRows: function(params) {
+                const startRow = params.startRow;
+                const endRow = params.endRow;
 
-            // Send a request to the server to get the rows in the requested range
-            fetch(`/api/data?start=${startRow}&end=${endRow}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Server error:', data.error);
-                        params.failCallback();  // Fallback if there's an error
-                    } else {
-                        // Pass the fetched data to the grid
-                        params.successCallback(data.rows, data.total);  // Send rows and total count
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                    params.failCallback();  // Signal that the request failed
-                });
-        }
-    };
+                // Send a request to the server to get the rows in the requested range
+                fetch(`/api/data?start=${startRow}&end=${endRow}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error('Server error:', data.error);
+                            params.failCallback();  // Fallback if there's an error
+                        } else {
+                            // Pass the fetched data to the grid
+                            params.successCallback(data.rows, data.total);  // Send rows and total count
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        params.failCallback();  // Signal that the request failed
+                    });
+            }
+        };
 
-    // Initialize the grid
-    const gridOptions = {
-        columnDefs: columnDefs,
-        rowModelType: 'infinite',  // Enable infinite scrolling (lazy loading)
-        cacheBlockSize: 100,       // Number of rows to fetch per page
-        maxBlocksInCache: 2,       // Cache up to 2 blocks at a time
-        defaultColDef: {
-            sortable: true,
-            filter: true,
-            resizable: true
-        },
-        rowSelection: {
-            type: 'multiple'  // New approach
-        },  // Enable multiple row selection
-        datasource: dataSource     // Set the data source for infinite scrolling
-    };
+        // Initialize the grid
+        const gridOptions = {
+            columnDefs: columnDefs,
+            rowModelType: 'infinite',  // Enable infinite scrolling (lazy loading)
+            cacheBlockSize: 100,       // Number of rows to fetch per page
+            maxBlocksInCache: 2,       // Cache up to 2 blocks at a time
+            defaultColDef: {
+                sortable: true,
+                filter: true,
+                resizable: true
+            },
+            rowSelection: {
+                type: 'multiple'  // New approach
+            },  // Enable multiple row selection
+            datasource: dataSource     // Set the data source for infinite scrolling
+        };
 
-    // Attach the grid to the DOM
-    const eGridDiv = document.querySelector('#myGrid');
-    const gridApi = agGrid.createGrid(eGridDiv, gridOptions);
-});
+        // Attach the grid to the DOM
+        const eGridDiv = document.querySelector('#myGrid');
+        const gridApi = agGrid.createGrid(eGridDiv, gridOptions);
 
         // Event listener for the "Plot Selected Rows" button
-        
-
-
-
         document.getElementById('plotButton').addEventListener('click', () => {
             const selectedRows = gridOptions.api.getSelectedRows();
 
@@ -166,11 +161,11 @@ fetch('/api/data')
         // Event listener for the "Clear Selection" button
         document.getElementById('clearButton').addEventListener('click', () => {
             // Clear all selected rows
-            gridOptions.api.deselectAll();  
+            gridOptions.api.deselectAll();
 
             // Clear the Plotly graphs by emptying the plotlyGraphs div
             const plotlyGraphsDiv = document.getElementById('plotlyGraphs');
-            plotlyGraphsDiv.innerHTML = '';  // Clear the graphsz
+            plotlyGraphsDiv.innerHTML = '';  // Clear the graphs
             document.getElementById('cosineScore').textContent = '';
         });
 
