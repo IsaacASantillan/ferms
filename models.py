@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 class Ms(db.Model):
     selected = db.Column(db.Boolean, default=False)
     name = db.Column(db.String(256), primary_key = True)

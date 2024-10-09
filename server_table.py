@@ -1,8 +1,5 @@
-from models import db, Ms, app  # Ensure you import the correct model
+from models import db, Ms, app
 from flask import jsonify, render_template, request
-from flask_sqlalchemy import SQLAlchemy
-
-
 
 @app.route('/')
 def home():
