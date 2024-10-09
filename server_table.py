@@ -1,5 +1,5 @@
 from models import db, Ms, app  # Ensure you import the correct model
-from flask import jsonify, render_template
+from flask import jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -10,15 +10,28 @@ def home():
 
 @app.route('/api/data')
 def data():
-    query = Ms.query.all()  # Assuming Ms is your model and you want all rows
-    minilist = [ms.to_dict() for ms in query]
-    total = len(minilist)  # Get total count if needed
-    return jsonify({
-        'data': minilist,
-        'total': total,
-        'x_coordinates': [ms.x_coordinates for ms in query],
-        'y_coordinates': [ms.y_coordinates for ms in query]
-    })
+    try:
+        # Get start and end parameters from the request
+        start = int(request.args.get('start', 0))
+        end = int(request.args.get('end', 100))
+        
+        # Query the database and limit results for pagination
+        query = Ms.query.offset(start).limit(end - start).all()
+        
+        if not query:
+            return jsonify({'rows': [], 'total': 0}), 200  # Return empty if no data
+        
+        minilist = [ms.to_dict() for ms in query]
+        total = Ms.query.count()  # Get the total count of rows
+        
+        return jsonify({
+            'rows': minilist,
+            'total': total
+        }), 200
+
+    except Exception as e:
+        print(f"Error fetching data: {e}")  # Log the error for debugging
+        return jsonify({'error': str(e)}), 500  # Return error message in JSON
 
 
 if __name__ == '__main__':
