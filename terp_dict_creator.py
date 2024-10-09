@@ -98,4 +98,7 @@ with app.app_context():
             terp_dict["Contributor"][i], 
             terp_dict["Date_of_Entry"][i], 
             terp_dict["Publications"][i], 
-            terp_di
+            terp_dict["X-Values"][i], 
+            terp_dict["Y-Values"][i]
+        )
+
