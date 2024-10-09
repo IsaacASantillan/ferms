@@ -19,17 +19,4 @@ def data():
             return jsonify({'rows': [], 'total': 0}), 200  # Return empty if no data
         
         minilist = [ms.to_dict() for ms in query]
-        total = Ms.query.count()  # Get the total count of rows
-        
-        return jsonify({
-            'rows': minilist,
-            'total': total
-        }), 200
-
-    except Exception as e:
-        print(f"Error fetching data: {e}")  # Log the error for debugging
-        return jsonify({'error': str(e)}), 500  # Return error message in JSON
-
-
-if __name__ == '__main__':
-    app.run()
+        total = Ms.

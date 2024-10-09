@@ -417,45 +417,4 @@ function updatePlotlyGraphs(selectedRows) {
 
 }
 
-function calculateCosineSimilarity(yCoords1, yCoords2) {
-    let y1 = yCoords1.slice(0,-1).split(',').map(Number).filter(val => !isNaN(val));
-    let y2 = yCoords2.slice(0,-1).split(',').map(Number).filter(val => !isNaN(val));
-
-    // Truncate the longer vector to match the shorter one
-    if (y1.length != y2.length) {
-        const minLength = Math.min(y1.length, y2.length);
-        y1 = y1.slice(0, minLength);
-        y2 = y2.slice(0, minLength);
-        alert('Vectors have different lengths!');
-    }
-
-    // Calculate the dot product
-    
-
-    // Calculate magnitudes
-    const magnitudeY1 = Math.sqrt(y1.reduce((sum, val) => sum + val * val, 0));
-    const magnitudeY2 = Math.sqrt(y2.reduce((sum, val) => sum + val * val, 0));
-
-    const dotProduct = y1.reduce((sum, val, index) => sum + val * y2[index], 0);
-    // Handle zero vectors
-    if (magnitudeY1 === 0 || magnitudeY2 === 0) {
-        return NaN;
-    }
-
-    // Return cosine similarity
-    return dotProduct / (magnitudeY1 * magnitudeY2);
-}
-</script>
-
-<button id="plotButton" class="plot-button">Plot Selected Rows</button>
-<button id="clearButton" class="clear-button">Clear Selection</button>
-</body>
-
-<div class = "credits">
-  <ul>
-      <li> Powered By Open Berkeley. Copyright © 2024 UC Regents; all rights reserved. Property of UC Berkeley Department of Environmental Science. Lindsay Yee </li>
-  </ul>
-</div>
-
-
-</html>
+function calculateCosineSimilar

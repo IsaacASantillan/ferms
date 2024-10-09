@@ -66,6 +66,7 @@ def textdictionary(textfile_content):
     return databaseDictionary
 
 def ms_creator(name, retention_index, num_peaks, d_alkane_RTI, n_alkane_RTI, Instrument, Ionization, Injection_method, GC_column, Oven_temp, Experimental_Source, Experimental_Conditions, Contributor, Date_of_Entry, Publications, x_coordinates, y_coordinates):
+    print(f"Inserting: {name}, {retention_index}, {num_peaks}")
     ms_obj = Ms(name=name, retention_index=retention_index, num_peaks=num_peaks, d_alkane_rt1=d_alkane_RTI, n_alkane_rt1=n_alkane_RTI, instrument=Instrument, ionization=Ionization, injection_method=Injection_method, gc_column=GC_column, oven_temp=Oven_temp, campaign_experimental_source=Experimental_Source, experimental_condition=Experimental_Conditions, contributor=Contributor, date_of_entry=Date_of_Entry, publications=Publications, x_coordinates=x_coordinates, y_coordinates=y_coordinates)
     db.session.add(ms_obj)
     db.session.commit()
