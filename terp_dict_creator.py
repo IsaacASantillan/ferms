@@ -82,20 +82,5 @@ terp_dict = textdictionary(content)
 with app.app_context():
     terp_dict_length = len(terp_dict["Name"])
     for i in range(terp_dict_length):
-        ms_creator(
-            terp_dict["Name"][i], 
-            terp_dict["Retention_index"][i], 
-            terp_dict["Num Peaks"][i], 
-            terp_dict["d_alkane_RTI"][i], 
-            terp_dict["n_alkane_RTI"][i], 
-            terp_dict["Instrument"][i], 
-            terp_dict["Ionization"][i], 
-            terp_dict["Injection_method"][i], 
-            terp_dict["GC_column"][i], 
-            terp_dict["Oven_temp"][i], 
-            terp_dict["Campaign/Experimental_Source"][i], 
-            terp_dict["Experimental_Conditions"][i], 
-            terp_dict["Contributor"][i], 
-            terp_dict["Date_of_Entry"][i], 
-            terp_dict["Publications"][i], 
-            terp_di
+        ms_creator(terp_dict["Name"][i], terp_dict["Retention_index"][i], terp_dict["Num Peaks"][i], terp_dict["d_alkane_RTI"][i], terp_dict["n_alkane_RTI"][i], terp_dict["Instrument"][i], terp_dict["Ionization"][i], terp_dict["Injection_method"][i], terp_dict["GC_column"][i], terp_dict["Oven_temp"][i], terp_dict["Campaign/Experimental_Source"][i], terp_dict["Experimental_Conditions"][i], terp_dict["Contributor"][i], terp_dict["Date_of_Entry"][i], terp_dict["Publications"][i], terp_dict["X-Values"][i], terp_dict["Y-Values"][i])
+
