@@ -72,77 +72,53 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script>
     const columnDefs = [
-    { headerName: 'Name', field: 'Name'},
-    { headerName: 'Retention Index', field: 'Retention_index' },
-    { headerName: 'Number of Peaks', field: 'Num Peaks', filter: 'agNumberColumnFilter' },
-    { headerName: 'd-Alkane RTI', field: 'd_alkane_RTI' },
-    { headerName: 'n-Alkane RTI', field: 'n_alkane_RTI' },
-    { headerName: 'Instrument', field: 'Instrument' },
-    { headerName: 'Ionization', field: 'Ionization' },
-    { headerName: 'Injection Method', field: 'Injection_method' },
-    { headerName: 'GC Column', field: 'gc_column' },
-    { headerName: 'Oven Temp', field: 'oven_temp' },
-    { headerName: 'Campaign Experimental Source', field: 'campaign_experimental_source' },
-    { headerName: 'Experimental Conditions', field: 'experimental_conditions' },
-    { headerName: 'Contributor', field: 'contributor', filter: 'agTextColumnFilter' },
-    { headerName: 'Date of Entry', field: 'date_of_entry', filter: 'agDateColumnFilter' },
-    { headerName: 'Publications', field: 'publications' },
-    { headerName: 'm/z', field: 'x_coordinates' },
-    { headerName: 'Intensity Peaks', field: 'y_coordinates' }
-];
+        { headerName: 'Name', field: 'Name'},
+        { headerName: 'Retention Index', field: 'Retention_index' },
+        { headerName: 'Number of Peaks', field: 'Num Peaks', filter: 'agNumberColumnFilter' },
+        { headerName: 'd-Alkane RTI', field: 'd_alkane_RTI' },
+        { headerName: 'n-Alkane RTI', field: 'n_alkane_RTI' },
+        { headerName: 'Instrument', field: 'Instrument' },
+        { headerName: 'Ionization', field: 'Ionization' },
+        { headerName: 'Injection Method', field: 'Injection_method' },
+        { headerName: 'GC Column', field: 'gc_column' },
+        { headerName: 'Oven Temp', field: 'oven_temp' },
+        { headerName: 'Campaign Experimental Source', field: 'campaign_experimental_source' },
+        { headerName: 'Experimental Conditions', field: 'experimental_conditions' },
+        { headerName: 'Contributor', field: 'contributor', filter: 'agTextColumnFilter' },
+        { headerName: 'Date of Entry', field: 'date_of_entry', filter: 'agDateColumnFilter' },
+        { headerName: 'Publications', field: 'publications' },
+        { headerName: 'm/z', field: 'x_coordinates' },
+        { headerName: 'Intensity Peaks', field: 'y_coordinates' }
+    ];
 
-// Fetch data from the Flask API
-fetch('/api/data')
+    // Fetch data from the Flask API
+    fetch('/api/data')
     .then(response => response.json())
     .then(result => {
         const minilist = result.data;
 
-        const dataSource = {
-            getRows: function(params) {
-                const startRow = params.startRow;
-                const endRow = params.endRow;
-
-                // Send a request to the server to get the rows in the requested range
-                fetch(`/api/data?start=${startRow}&end=${endRow}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            console.error('Server error:', data.error);
-                            params.failCallback();  // Fallback if there's an error
-                        } else {
-                            // Pass the fetched data to the grid
-                            params.successCallback(data.rows, data.total);  // Send rows and total count
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data:', error);
-                        params.failCallback();  // Signal that the request failed
-                    });
-            }
-        };
-
-        // Initialize the grid
         const gridOptions = {
             columnDefs: columnDefs,
-            rowModelType: 'infinite',  // Enable infinite scrolling (lazy loading)
-            cacheBlockSize: 100,       // Number of rows to fetch per page
-            maxBlocksInCache: 2,       // Cache up to 2 blocks at a time
+            rowData: minilist,
             defaultColDef: {
                 sortable: true,
                 filter: true,
                 resizable: true
             },
             rowSelection: {
-                type: 'multiple'  // New approach
-            },  // Enable multiple row selection
-            datasource: dataSource     // Set the data source for infinite scrolling
+                mode: 'multiRow' // Enable multiple row selection
+            }
+            
         };
-
-        // Attach the grid to the DOM
+        
         const eGridDiv = document.querySelector('#myGrid');
-        const gridApi = agGrid.createGrid(eGridDiv, gridOptions);
+        new agGrid.Grid(eGridDiv, gridOptions);
 
         // Event listener for the "Plot Selected Rows" button
+        
+
+
+
         document.getElementById('plotButton').addEventListener('click', () => {
             const selectedRows = gridOptions.api.getSelectedRows();
 
@@ -161,11 +137,11 @@ fetch('/api/data')
         // Event listener for the "Clear Selection" button
         document.getElementById('clearButton').addEventListener('click', () => {
             // Clear all selected rows
-            gridOptions.api.deselectAll();
+            gridOptions.api.deselectAll();  
 
             // Clear the Plotly graphs by emptying the plotlyGraphs div
             const plotlyGraphsDiv = document.getElementById('plotlyGraphs');
-            plotlyGraphsDiv.innerHTML = '';  // Clear the graphs
+            plotlyGraphsDiv.innerHTML = '';  // Clear the graphsz
             document.getElementById('cosineScore').textContent = '';
         });
 
@@ -458,4 +434,4 @@ function calculateCosineSimilarity(yCoords1, yCoords2) {
 </div>
 
 
-</html>
+

@@ -66,7 +66,6 @@ def textdictionary(textfile_content):
     return databaseDictionary
 
 def ms_creator(name, retention_index, num_peaks, d_alkane_RTI, n_alkane_RTI, Instrument, Ionization, Injection_method, GC_column, Oven_temp, Experimental_Source, Experimental_Conditions, Contributor, Date_of_Entry, Publications, x_coordinates, y_coordinates):
-    print(f"Inserting: {name}, {retention_index}, {num_peaks}")
     ms_obj = Ms(name=name, retention_index=retention_index, num_peaks=num_peaks, d_alkane_rt1=d_alkane_RTI, n_alkane_rt1=n_alkane_RTI, instrument=Instrument, ionization=Ionization, injection_method=Injection_method, gc_column=GC_column, oven_temp=Oven_temp, campaign_experimental_source=Experimental_Source, experimental_condition=Experimental_Conditions, contributor=Contributor, date_of_entry=Date_of_Entry, publications=Publications, x_coordinates=x_coordinates, y_coordinates=y_coordinates)
     db.session.add(ms_obj)
     db.session.commit()
@@ -83,5 +82,22 @@ terp_dict = textdictionary(content)
 with app.app_context():
     terp_dict_length = len(terp_dict["Name"])
     for i in range(terp_dict_length):
-        ms_creator(terp_dict["Name"][i], terp_dict["Retention_index"][i], terp_dict["Num Peaks"][i], terp_dict["d_alkane_RTI"][i], terp_dict["n_alkane_RTI"][i], terp_dict["Instrument"][i], terp_dict["Ionization"][i], terp_dict["Injection_method"][i], terp_dict["GC_column"][i], terp_dict["Oven_temp"][i], terp_dict["Campaign/Experimental_Source"][i], terp_dict["Experimental_Conditions"][i], terp_dict["Contributor"][i], terp_dict["Date_of_Entry"][i], terp_dict["Publications"][i], terp_dict["X-Values"][i], terp_dict["Y-Values"][i])
-
+        ms_creator(
+            terp_dict["Name"][i], 
+            terp_dict["Retention_index"][i], 
+            terp_dict["Num Peaks"][i], 
+            terp_dict["d_alkane_RTI"][i], 
+            terp_dict["n_alkane_RTI"][i], 
+            terp_dict["Instrument"][i], 
+            terp_dict["Ionization"][i], 
+            terp_dict["Injection_method"][i], 
+            terp_dict["GC_column"][i], 
+            terp_dict["Oven_temp"][i], 
+            terp_dict["Campaign/Experimental_Source"][i], 
+            terp_dict["Experimental_Conditions"][i], 
+            terp_dict["Contributor"][i], 
+            terp_dict["Date_of_Entry"][i], 
+            terp_dict["Publications"][i], 
+            terp_dict["X-Values"][i], 
+            terp_dict["Y-Values"][i]
+        )
