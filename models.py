@@ -30,13 +30,13 @@ class Ms(db.Model):
     injection_method = db.Column(db.String(256))
     gc_column = db.Column(db.String(256))
     oven_temp = db.Column(db.String(256))
-    campaign_experimental_source = db.Column(db.String(256))
+    campaign_experimental_source = db.Column(db.Text)
     experimental_condition = db.Column(db.String(256))
     contributor = db.Column(db.String(256))
     date_of_entry = db.Column(db.String(256))
     publications = db.Column(db.String(256))
-    x_coordinates = db.Column(db.String(256))
-    y_coordinates = db.Column(db.String(256))
+    x_coordinates = db.Column(db.Text)
+    y_coordinates = db.Column(db.Text)
 
     def to_dict(self):
         return {
